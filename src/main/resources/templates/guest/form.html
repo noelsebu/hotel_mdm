@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Guest Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/guest}" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <i class="bi bi-person-plus me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${guest.id != null} ? 'Edit Guest Profile' : 'New Guest Profile'"></h2>
+    </div>
+
+    <div th:if="${qualityErrors}" class="alert alert-danger">
+        <strong><i class="bi bi-shield-exclamation me-2"></i>Data Quality Issues:</strong>
+        <ul class="mb-0 mt-1">
+            <li th:each="err : ${qualityErrors}" th:text="${err.fieldName + ': ' + err.message}"></li>
+        </ul>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="max-width:800px;">
+        <div class="card-body">
+            <form th:action="${guest.id != null} ? @{/guest/{id}(id=${guest.id})} : @{/guest}"
+                  th:object="${guest}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">First Name *</label>
+                        <input type="text" class="form-control" th:field="*{firstName}"
+                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{firstName}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Last Name *</label>
+                        <input type="text" class="form-control" th:field="*{lastName}"
+                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{lastName}"></div>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Email *</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{email}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input type="text" class="form-control" th:field="*{phone}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Date of Birth</label>
+                        <input type="date" class="form-control" th:field="*{dateOfBirth}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Nationality</label>
+                        <input type="text" class="form-control" th:field="*{nationality}"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Passport Number</label>
+                        <input type="text" class="form-control" th:field="*{passportNumber}"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Loyalty Points</label>
+                        <input type="number" class="form-control" th:field="*{loyaltyPoints}" min="0"/>
+                        <div class="form-text">Tier is recalculated automatically on save.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Notes</label>
+                        <textarea class="form-control" th:field="*{notes}" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Profile</button>
+                    <a th:href="@{/guest}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

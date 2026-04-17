@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Dashboard</title></head>
+<body>
+<div layout:fragment="content">
+
+    <div class="page-header d-flex align-items-center mb-4">
+        <i class="bi bi-speedometer2 me-2 fs-4"></i>
+        <h2 class="mb-0">Dashboard</h2>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-blue">
+                <div class="stat-icon"><i class="bi bi-building"></i></div>
+                <div class="stat-value" th:text="${totalHotels}">0</div>
+                <div class="stat-label">Hotels</div>
+                <a th:href="@{/property/hotels}" class="stat-link">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-green">
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+                <div class="stat-value" th:text="${totalGuests}">0</div>
+                <div class="stat-label">Guest Profiles</div>
+                <a th:href="@{/guest}" class="stat-link">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-purple">
+                <div class="stat-icon"><i class="bi bi-truck"></i></div>
+                <div class="stat-value" th:text="${totalSuppliers}">0</div>
+                <div class="stat-label">Suppliers</div>
+                <a th:href="@{/vendor}" class="stat-link">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-card-orange">
+                <div class="stat-icon"><i class="bi bi-door-open"></i></div>
+                <div class="stat-value" th:text="${totalRooms}">0</div>
+                <div class="stat-label">Rooms</div>
+                <a th:href="@{/property/rooms}" class="stat-link">View all <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Governance Status Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold"><i class="bi bi-check2-circle text-warning me-2"></i>Pending Approvals</span>
+                    <span class="badge bg-warning text-dark fs-6" th:text="${pendingApprovals}">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(recentApprovals)}" class="text-muted text-center py-4">
+                        <i class="bi bi-check-all fs-2 d-block mb-2"></i>No pending approvals
+                    </div>
+                    <ul class="list-group list-group-flush" th:unless="${#lists.isEmpty(recentApprovals)}">
+                        <li class="list-group-item" th:each="req : ${recentApprovals}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-secondary me-2" th:text="${req.entityType}"></span>
+                                    <span th:text="${req.entityLabel}">Entity</span>
+                                </div>
+                                <div class="text-muted small" th:text="${#temporals.format(req.requestedAt,'dd MMM HH:mm')}"></div>
+                            </div>
+                            <div class="text-muted small">Submitted by <strong th:text="${req.requestedBy}"></strong></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white text-end">
+                    <a th:href="@{/governance/approvals}" class="btn btn-sm btn-outline-primary">
+                        Manage Approvals <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold"><i class="bi bi-clipboard-check text-info me-2"></i>Open Steward Tasks</span>
+                    <span class="badge bg-info text-dark fs-6" th:text="${openTasks}">0</span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(openTaskList)}" class="text-muted text-center py-4">
+                        <i class="bi bi-clipboard2-check fs-2 d-block mb-2"></i>No open tasks
+                    </div>
+                    <ul class="list-group list-group-flush" th:unless="${#lists.isEmpty(openTaskList)}">
+                        <li class="list-group-item" th:each="task : ${openTaskList}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span th:text="${task.title}">Task</span>
+                                <span class="badge"
+                                      th:classappend="${task.priority.name() == 'CRITICAL'} ? 'bg-danger' : (${task.priority.name() == 'HIGH'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                      th:text="${task.priority.label}"></span>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-calendar3 me-1"></i>Due <span th:text="${#temporals.format(task.dueDate,'dd MMM yyyy')}"></span>
+                                &nbsp;·&nbsp; Assigned to <strong th:text="${task.assignedTo}"></strong>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white text-end">
+                    <a th:href="@{/governance/tasks}" class="btn btn-sm btn-outline-info">
+                        Manage Tasks <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Audit Activity -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <span class="fw-semibold"><i class="bi bi-journal-text text-secondary me-2"></i>Recent Activity</span>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(recentActivity)}" class="text-muted text-center py-4">No recent activity.</div>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(recentActivity)}">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Details</th>
+                            <th>User</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry : ${recentActivity}">
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${entry.action == 'CREATE'} ? 'bg-success' : (${entry.action == 'DELETE'} ? 'bg-danger' : (${entry.action == 'APPROVE'} ? 'bg-primary' : 'bg-secondary'))"
+                                      th:text="${entry.action}"></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${entry.entityType}"></span>
+                            </td>
+                            <td class="text-muted small" th:text="${entry.details}"></td>
+                            <td><strong th:text="${entry.performedBy}"></strong></td>
+                            <td class="text-muted small" th:text="${#temporals.format(entry.performedAt,'dd MMM HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white text-end">
+            <a th:href="@{/audit}" class="btn btn-sm btn-outline-secondary">
+                Full Audit Trail <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

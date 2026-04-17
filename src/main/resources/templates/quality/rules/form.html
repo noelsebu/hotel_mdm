@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Quality Rule Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/quality/rules}" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <i class="bi bi-shield-plus me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${rule.id != null} ? 'Edit Quality Rule' : 'New Quality Rule'"></h2>
+    </div>
+    <div class="card border-0 shadow-sm" style="max-width:700px;">
+        <div class="card-body">
+            <form th:action="${rule.id != null} ? @{/quality/rules/{id}(id=${rule.id})} : @{/quality/rules}"
+                  th:object="${rule}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Rule Name *</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Entity Type *</label>
+                        <select class="form-select" th:field="*{entityType}"
+                                th:classappend="${#fields.hasErrors('entityType')} ? 'is-invalid'">
+                            <option value="">-- Select --</option>
+                            <option th:each="et : ${entityTypes}" th:value="${et}" th:text="${et}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{entityType}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Field Name *</label>
+                        <input type="text" class="form-control" th:field="*{fieldName}"
+                               th:classappend="${#fields.hasErrors('fieldName')} ? 'is-invalid'"
+                               placeholder="e.g. email, name, phone"/>
+                        <div class="invalid-feedback" th:errors="*{fieldName}"></div>
+                        <div class="form-text">Must match the field key used in validation maps.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Rule Type *</label>
+                        <select class="form-select" th:field="*{ruleType}"
+                                th:classappend="${#fields.hasErrors('ruleType')} ? 'is-invalid'">
+                            <option value="">-- Select --</option>
+                            <option th:each="rt : ${ruleTypes}" th:value="${rt.name()}" th:text="${rt.label}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{ruleType}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Constraint Value</label>
+                        <input type="text" class="form-control" th:field="*{ruleValue}"
+                               placeholder="e.g. 5 (for MIN_LENGTH), ^[A-Z]+$ (for REGEX)"/>
+                        <div class="form-text">Leave blank for NOT_NULL, EMAIL_FORMAT, PHONE_FORMAT.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Severity *</label>
+                        <select class="form-select" th:field="*{severity}">
+                            <option th:each="s : ${severities}" th:value="${s.name()}" th:text="${s.label}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Active</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" th:field="*{active}" role="switch"/>
+                            <label class="form-check-label">Rule is active</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Error Message *</label>
+                        <input type="text" class="form-control" th:field="*{message}"
+                               th:classappend="${#fields.hasErrors('message')} ? 'is-invalid'"
+                               placeholder="Shown to user when this rule fails"/>
+                        <div class="invalid-feedback" th:errors="*{message}"></div>
+                    </div>
+                </div>
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Rule</button>
+                    <a th:href="@{/quality/rules}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

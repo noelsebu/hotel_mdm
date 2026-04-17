@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Audit Trail</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-journal-text fs-4"></i>
+            <h2 class="mb-0">Audit Trail</h2>
+        </div>
+        <form method="get" class="d-flex gap-2">
+            <select name="entityType" class="form-select form-select-sm" onchange="this.form.submit()" style="width:160px;">
+                <option value="">All Entity Types</option>
+                <option th:each="type : ${entityTypes}" th:value="${type}" th:text="${type}"
+                        th:selected="${selectedEntityType == type}"></option>
+            </select>
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(entries)}" class="text-center text-muted py-5">
+                <i class="bi bi-journal fs-1 d-block mb-3"></i>No audit entries found.
+            </div>
+            <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(entries)}">
+                <thead class="table-light">
+                    <tr><th>Action</th><th>Entity Type</th><th>Entity ID</th><th>Details</th><th>Performed By</th><th>Date / Time</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="entry : ${entries}">
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${entry.action == 'CREATE'} ? 'bg-success' :
+                                                 (${entry.action == 'DELETE'} ? 'bg-danger' :
+                                                 (${entry.action == 'APPROVE'} ? 'bg-primary' :
+                                                 (${entry.action == 'REJECT'} ? 'bg-warning text-dark' :
+                                                 (${entry.action == 'SUBMIT_FOR_APPROVAL'} ? 'bg-info text-dark' : 'bg-secondary'))))"
+                                  th:text="${entry.action}"></span>
+                        </td>
+                        <td><span class="badge bg-light text-dark border" th:text="${entry.entityType}"></span></td>
+                        <td class="text-muted small" th:text="${entry.entityId}"></td>
+                        <td th:text="${entry.details}"></td>
+                        <td><strong th:text="${entry.performedBy}"></strong></td>
+                        <td class="text-muted small" th:text="${#temporals.format(entry.performedAt,'dd MMM yyyy HH:mm:ss')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white text-muted small" th:unless="${#lists.isEmpty(entries)}">
+            Showing <strong th:text="${#lists.size(entries)}"></strong> entries
+        </div>
+    </div>
+</div>
+</body>
+</html>

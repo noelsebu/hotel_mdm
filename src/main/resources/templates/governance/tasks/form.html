@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title>Task Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/governance/tasks}" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+        <i class="bi bi-clipboard-plus me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${task.id != null} ? 'Edit Task' : 'New Steward Task'"></h2>
+    </div>
+    <div class="card border-0 shadow-sm" style="max-width:700px;">
+        <div class="card-body">
+            <form th:action="${task.id != null} ? @{/governance/tasks/{id}(id=${task.id})} : @{/governance/tasks}"
+                  th:object="${task}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Title *</label>
+                        <input type="text" class="form-control" th:field="*{title}"
+                               th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{title}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Assigned To *</label>
+                        <select class="form-select" th:field="*{assignedTo}"
+                                th:classappend="${#fields.hasErrors('assignedTo')} ? 'is-invalid'">
+                            <option value="">-- Select User --</option>
+                            <option th:each="u : ${stewards}" th:value="${u.username}"
+                                    th:text="${u.fullName + ' (' + u.role.label + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{assignedTo}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Due Date *</label>
+                        <input type="date" class="form-control" th:field="*{dueDate}"
+                               th:classappend="${#fields.hasErrors('dueDate')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{dueDate}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Priority</label>
+                        <select class="form-select" th:field="*{priority}">
+                            <option th:each="p : ${priorities}" th:value="${p.name()}" th:text="${p.label}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Related Entity Type</label>
+                        <select class="form-select" th:field="*{entityType}">
+                            <option value="">None</option>
+                            <option value="HOTEL">Hotel</option>
+                            <option value="GUEST">Guest</option>
+                            <option value="SUPPLIER">Supplier</option>
+                            <option value="ROOM">Room</option>
+                        </select>
+                    </div>
+                </div>
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Save Task</button>
+                    <a th:href="@{/governance/tasks}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

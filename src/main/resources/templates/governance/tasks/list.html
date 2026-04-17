@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main}">
+<head><title>Steward Tasks</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clipboard-check fs-4"></i>
+            <h2 class="mb-0">Data Steward Tasks</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="get" class="d-flex gap-2">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}"
+                            th:selected="${selectedStatus == s.name()}"></option>
+                </select>
+            </form>
+            <a th:href="@{/governance/tasks/new}" class="btn btn-primary"
+               sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+                <i class="bi bi-plus-lg me-1"></i>New Task
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(tasks)}" class="text-center text-muted py-5">
+                <i class="bi bi-clipboard2-check fs-1 d-block mb-3"></i>No tasks found.
+            </div>
+            <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(tasks)}">
+                <thead class="table-light">
+                    <tr><th>Title</th><th>Assigned To</th><th>Entity</th><th>Priority</th><th>Due Date</th><th>Status</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="task : ${tasks}"
+                        th:classappend="${task.dueDate.isBefore(T(java.time.LocalDate).now()) and task.status.name() != 'COMPLETED' and task.status.name() != 'CANCELLED'} ? 'table-danger' : ''">
+                        <td>
+                            <div class="fw-semibold" th:text="${task.title}"></div>
+                            <div class="text-muted small" th:text="${task.description}"></div>
+                        </td>
+                        <td th:text="${task.assignedTo}"></td>
+                        <td>
+                            <span th:if="${task.entityType != null}" class="badge bg-light text-dark border" th:text="${task.entityType}"></span>
+                            <span th:unless="${task.entityType != null}" class="text-muted">—</span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${task.priority.name() == 'CRITICAL'} ? 'bg-danger' :
+                                                 (${task.priority.name() == 'HIGH'} ? 'bg-warning text-dark' :
+                                                 (${task.priority.name() == 'MEDIUM'} ? 'bg-info text-dark' : 'bg-secondary'))"
+                                  th:text="${task.priority.label}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(task.dueDate,'dd MMM yyyy')}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${task.status.name() == 'COMPLETED'} ? 'bg-success' :
+                                                 (${task.status.name() == 'IN_PROGRESS'} ? 'bg-primary' :
+                                                 (${task.status.name() == 'CANCELLED'} ? 'bg-secondary' : 'bg-warning text-dark'))"
+                                  th:text="${task.status.label}"></span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-1">
+                                <form th:action="@{/governance/tasks/{id}/status(id=${task.id})}" method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <select name="status" class="form-select form-select-sm" style="width:130px;"
+                                            onchange="this.form.submit()">
+                                        <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}"
+                                                th:selected="${task.status == s}"></option>
+                                    </select>
+                                </form>
+                                <a th:href="@{/governance/tasks/{id}/edit(id=${task.id})}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form th:action="@{/governance/tasks/{id}/delete(id=${task.id})}" method="post"
+                                      sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')"
+                                      onsubmit="return confirm('Delete task?')">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Usage: th:insert="~{fragments/workflow-badge :: badge(${entity.workflowStatus})}" -->
+<span th:fragment="badge(status)"
+      class="badge"
+      th:classappend="${status.name() == 'APPROVED'} ? 'bg-success' :
+                      (${status.name() == 'PENDING_APPROVAL'} ? 'bg-warning text-dark' :
+                      (${status.name() == 'REJECTED'} ? 'bg-danger' : 'bg-secondary'))"
+      th:text="${status.label}">
+    Status
+</span>
+</body>
+</html>

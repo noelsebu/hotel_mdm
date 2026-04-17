@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main}">
+<head><title>Approvals</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <i class="bi bi-check2-circle me-2 fs-4"></i>
+        <h2 class="mb-0">Approval Requests</h2>
+    </div>
+
+    <!-- Pending -->
+    <h5 class="fw-semibold mb-3">
+        <span class="badge bg-warning text-dark me-2" th:text="${#lists.size(pendingRequests)}"></span>
+        Pending Review
+    </h5>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(pendingRequests)}" class="text-center text-muted py-4">
+                <i class="bi bi-check-all fs-1 d-block mb-2"></i>No pending approvals.
+            </div>
+            <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(pendingRequests)}">
+                <thead class="table-light">
+                    <tr><th>Entity</th><th>Record</th><th>Submitted By</th><th>Submitted At</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="req : ${pendingRequests}">
+                        <td><span class="badge bg-secondary" th:text="${req.entityType}"></span></td>
+                        <td class="fw-semibold" th:text="${req.entityLabel}"></td>
+                        <td th:text="${req.requestedBy}"></td>
+                        <td class="text-muted small" th:text="${#temporals.format(req.requestedAt,'dd MMM yyyy HH:mm')}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/governance/approvals/{id}(id=${req.id})}"
+                               class="btn btn-sm btn-primary"
+                               sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+                                <i class="bi bi-eye me-1"></i>Review
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- All Requests History -->
+    <h5 class="fw-semibold mb-3">All Requests</h5>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0" th:unless="${#lists.isEmpty(allRequests)}">
+                <thead class="table-light">
+                    <tr><th>Entity</th><th>Record</th><th>Submitted By</th><th>Reviewed By</th><th>Status</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="req : ${allRequests}">
+                        <td><span class="badge bg-light text-dark border" th:text="${req.entityType}"></span></td>
+                        <td th:text="${req.entityLabel}"></td>
+                        <td th:text="${req.requestedBy}"></td>
+                        <td th:text="${req.reviewedBy ?: '—'}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${req.status.name() == 'APPROVED'} ? 'bg-success' : (${req.status.name() == 'REJECTED'} ? 'bg-danger' : 'bg-warning text-dark')"
+                                  th:text="${req.status.label}"></span>
+                        </td>
+                        <td class="text-muted small" th:text="${#temporals.format(req.requestedAt,'dd MMM yyyy')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(allRequests)}" class="text-muted text-center py-4">No requests yet.</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

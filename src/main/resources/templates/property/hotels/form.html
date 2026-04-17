@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title th:text="${pageTitle}">Hotel Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/property/hotels}" class="btn btn-sm btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <i class="bi bi-building me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${pageTitle}">Hotel Form</h2>
+    </div>
+
+    <!-- Data Quality Errors -->
+    <div th:if="${qualityErrors}" class="alert alert-danger">
+        <strong><i class="bi bi-shield-exclamation me-2"></i>Data Quality Issues:</strong>
+        <ul class="mb-0 mt-1">
+            <li th:each="err : ${qualityErrors}" th:text="${err.fieldName + ': ' + err.message}"></li>
+        </ul>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form th:action="${hotel.id != null} ? @{/property/hotels/{id}(id=${hotel.id})} : @{/property/hotels}"
+                  th:object="${hotel}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Hotel Name *</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Hotel Code *</label>
+                        <input type="text" class="form-control text-uppercase" th:field="*{code}"
+                               th:classappend="${#fields.hasErrors('code')} ? 'is-invalid'"
+                               placeholder="e.g. GPH-001"/>
+                        <div class="invalid-feedback" th:errors="*{code}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Star Rating *</label>
+                        <select class="form-select" th:field="*{starRating}">
+                            <option th:each="i : ${#numbers.sequence(1,5)}" th:value="${i}"
+                                    th:text="${i + ' ★'}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Phone</label>
+                        <input type="text" class="form-control" th:field="*{phone}" placeholder="+1-555-000-0000"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}"
+                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{email}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Website</label>
+                        <input type="text" class="form-control" th:field="*{website}"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Total Rooms</label>
+                        <input type="number" class="form-control" th:field="*{totalRooms}" min="0"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Address *</label>
+                        <input type="text" class="form-control" th:field="*{address}"
+                               th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{address}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">City *</label>
+                        <input type="text" class="form-control" th:field="*{city}"
+                               th:classappend="${#fields.hasErrors('city')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{city}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Country *</label>
+                        <input type="text" class="form-control" th:field="*{country}"
+                               th:classappend="${#fields.hasErrors('country')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{country}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                    </div>
+
+                    <!-- Amenities -->
+                    <div class="col-12" th:if="${allAmenities != null and not #lists.isEmpty(allAmenities)}">
+                        <label class="form-label fw-semibold">Amenities</label>
+                        <div class="row g-2">
+                            <div class="col-md-4 col-sm-6" th:each="amenity : ${allAmenities}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="amenityIds" th:value="${amenity.id}"
+                                           th:id="${'amenity-' + amenity.id}"
+                                           th:checked="${selectedAmenityIds != null and selectedAmenityIds.contains(amenity.id)}"/>
+                                    <label class="form-check-label" th:for="${'amenity-' + amenity.id}">
+                                        <span th:text="${amenity.name}"></span>
+                                        <small class="text-muted" th:text="${'(' + amenity.category.label + ')'}"></small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Save Hotel
+                    </button>
+                    <a th:href="@{/property/hotels}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
