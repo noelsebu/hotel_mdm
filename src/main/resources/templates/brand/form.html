@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title th:text="${pageTitle}">Brand Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/chain}" class="btn btn-sm btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <i class="bi bi-collection me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${pageTitle}">Brand Form</h2>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form th:action="${brand.id != null} ? @{/brand/{id}(id=${brand.id})} : @{/brand}"
+                  th:object="${brand}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="row g-3">
+                    <!-- Parent Chain -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Hotel Chain *</label>
+                        <select class="form-select" name="chainId" required>
+                            <option value="">— Select Chain —</option>
+                            <option th:each="chain : ${chains}"
+                                    th:value="${chain.id}"
+                                    th:text="${chain.name}"
+                                    th:selected="${brand.chain != null and brand.chain.id == chain.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Brand Name *</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                               placeholder="e.g. Clarion Hotels"/>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Brand Code *</label>
+                        <input type="text" class="form-control text-uppercase" th:field="*{code}"
+                               th:classappend="${#fields.hasErrors('code')} ? 'is-invalid'"
+                               placeholder="CLR"/>
+                        <div class="invalid-feedback" th:errors="*{code}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Brand Tier *</label>
+                        <select class="form-select" th:field="*{tier}"
+                                th:classappend="${#fields.hasErrors('tier')} ? 'is-invalid'">
+                            <option value="">— Select Tier —</option>
+                            <option th:each="t : ${tiers}" th:value="${t}" th:text="${t.label}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{tier}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Target Segment *</label>
+                        <select class="form-select" th:field="*{segment}"
+                                th:classappend="${#fields.hasErrors('segment')} ? 'is-invalid'">
+                            <option value="">— Select Segment —</option>
+                            <option th:each="s : ${segments}" th:value="${s}" th:text="${s.label}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{segment}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Brand Color</label>
+                        <div class="input-group">
+                            <input type="color" class="form-control form-control-color"
+                                   name="colorCodePicker" id="colorCodePicker"
+                                   th:value="${brand.colorCode ?: '#1B3A6B'}"
+                                   style="width:50px;cursor:pointer;"
+                                   oninput="document.getElementById('colorCodeText').value=this.value"/>
+                            <input type="text" class="form-control" th:field="*{colorCode}"
+                                   id="colorCodeText" placeholder="#1B3A6B" maxlength="7"/>
+                        </div>
+                        <div class="form-text">Used for brand identification in the UI</div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Min Star Rating</label>
+                        <select class="form-select" th:field="*{minStarRating}">
+                            <option value="">—</option>
+                            <option th:each="i : ${#numbers.sequence(1,5)}" th:value="${i}" th:text="${i + ' ★'}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Max Star Rating</label>
+                        <select class="form-select" th:field="*{maxStarRating}">
+                            <option value="">—</option>
+                            <option th:each="i : ${#numbers.sequence(1,5)}" th:value="${i}" th:text="${i + ' ★'}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3"
+                                  placeholder="Brand positioning, target customer, and key differentiators..."></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Save Brand
+                    </button>
+                    <a th:href="@{/chain}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

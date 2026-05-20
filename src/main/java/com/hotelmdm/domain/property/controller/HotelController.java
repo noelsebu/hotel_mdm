@@ -1,6 +1,7 @@
 package com.hotelmdm.domain.property.controller;
 
 import com.hotelmdm.audit.AuditService;
+import com.hotelmdm.domain.chain.repository.HotelBrandRepository;
 import com.hotelmdm.domain.property.model.Hotel;
 import com.hotelmdm.domain.property.repository.AmenityRepository;
 import com.hotelmdm.domain.property.service.HotelService;
@@ -26,6 +27,7 @@ public class HotelController {
     private final HotelService hotelService;
     private final RoomService roomService;
     private final AmenityRepository amenityRepository;
+    private final HotelBrandRepository brandRepository;
     private final AuditService auditService;
 
     @GetMapping
@@ -50,6 +52,7 @@ public class HotelController {
     public String newHotel(Model model) {
         model.addAttribute("hotel", new Hotel());
         model.addAttribute("allAmenities", amenityRepository.findAllByOrderByNameAsc());
+        model.addAttribute("allBrands", brandRepository.findAllByOrderByNameAsc());
         model.addAttribute("pageTitle", "New Hotel");
         return "property/hotels/form";
     }
@@ -59,24 +62,26 @@ public class HotelController {
     public String createHotel(@Valid @ModelAttribute("hotel") Hotel hotel,
                               BindingResult result,
                               @RequestParam(required = false) List<Long> amenityIds,
+                              @RequestParam(required = false) Long brandId,
                               Authentication auth,
                               Model model,
                               RedirectAttributes ra) {
         if (result.hasErrors()) {
             model.addAttribute("allAmenities", amenityRepository.findAllByOrderByNameAsc());
+            model.addAttribute("allBrands", brandRepository.findAllByOrderByNameAsc());
             model.addAttribute("pageTitle", "New Hotel");
             return "property/hotels/form";
         }
-        // Run data quality checks
         List<ValidationResult> errors = hotelService.validateQuality(hotel).stream()
                 .filter(ValidationResult::isError).toList();
         if (!errors.isEmpty()) {
             model.addAttribute("qualityErrors", errors);
             model.addAttribute("allAmenities", amenityRepository.findAllByOrderByNameAsc());
+            model.addAttribute("allBrands", brandRepository.findAllByOrderByNameAsc());
             model.addAttribute("pageTitle", "New Hotel");
             return "property/hotels/form";
         }
-        Hotel saved = hotelService.save(hotel, amenityIds, auth.getName());
+        Hotel saved = hotelService.save(hotel, amenityIds, brandId, auth.getName());
         ra.addFlashAttribute("successMessage", "Hotel '" + saved.getName() + "' created as DRAFT.");
         return "redirect:/property/hotels/" + saved.getId();
     }
@@ -88,8 +93,10 @@ public class HotelController {
                 .orElseThrow(() -> new IllegalArgumentException("Hotel not found"));
         model.addAttribute("hotel", hotel);
         model.addAttribute("allAmenities", amenityRepository.findAllByOrderByNameAsc());
+        model.addAttribute("allBrands", brandRepository.findAllByOrderByNameAsc());
         model.addAttribute("selectedAmenityIds", hotel.getAmenities().stream()
                 .map(a -> a.getId()).toList());
+        model.addAttribute("selectedBrandId", hotel.getBrand() != null ? hotel.getBrand().getId() : null);
         model.addAttribute("pageTitle", "Edit Hotel");
         return "property/hotels/form";
     }
@@ -100,6 +107,7 @@ public class HotelController {
                               @Valid @ModelAttribute("hotel") Hotel hotel,
                               BindingResult result,
                               @RequestParam(required = false) List<Long> amenityIds,
+                              @RequestParam(required = false) Long brandId,
                               Authentication auth,
                               Model model,
                               RedirectAttributes ra) {
@@ -111,12 +119,13 @@ public class HotelController {
         }
         if (result.hasErrors()) {
             model.addAttribute("allAmenities", amenityRepository.findAllByOrderByNameAsc());
+            model.addAttribute("allBrands", brandRepository.findAllByOrderByNameAsc());
             model.addAttribute("pageTitle", "Edit Hotel");
             return "property/hotels/form";
         }
         hotel.setId(id);
         hotel.setWorkflowStatus(existing.getWorkflowStatus());
-        hotelService.save(hotel, amenityIds, auth.getName());
+        hotelService.save(hotel, amenityIds, brandId, auth.getName());
         ra.addFlashAttribute("successMessage", "Hotel updated.");
         return "redirect:/property/hotels/" + id;
     }

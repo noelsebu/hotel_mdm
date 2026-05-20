@@ -44,6 +44,11 @@
             <i class="bi bi-speedometer2"></i> Dashboard
         </a>
 
+        <div class="sidebar-section-label mt-2">CHAIN HIERARCHY</div>
+        <a th:href="@{/chain}" class="sidebar-link" th:classappend="${requestUri != null and (requestUri.startsWith('/chain') or requestUri.startsWith('/brand'))} ? 'active' : ''">
+            <i class="bi bi-diagram-3"></i> Chains &amp; Brands
+        </a>
+
         <div class="sidebar-section-label mt-2">PROPERTY</div>
         <a th:href="@{/property/hotels}" class="sidebar-link" th:classappend="${requestUri != null and requestUri.contains('/property/hotels')} ? 'active' : ''">
             <i class="bi bi-building"></i> Hotels

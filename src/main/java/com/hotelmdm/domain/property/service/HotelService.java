@@ -2,6 +2,7 @@ package com.hotelmdm.domain.property.service;
 
 import com.hotelmdm.audit.AuditService;
 import com.hotelmdm.common.WorkflowStatus;
+import com.hotelmdm.domain.chain.repository.HotelBrandRepository;
 import com.hotelmdm.domain.property.model.Amenity;
 import com.hotelmdm.domain.property.model.Hotel;
 import com.hotelmdm.domain.property.repository.AmenityRepository;
@@ -24,6 +25,7 @@ public class HotelService {
 
     private final HotelRepository hotelRepository;
     private final AmenityRepository amenityRepository;
+    private final HotelBrandRepository brandRepository;
     private final AuditService auditService;
     private final WorkflowService workflowService;
     private final DataQualityService dataQualityService;
@@ -41,15 +43,19 @@ public class HotelService {
     }
 
     @Transactional
-    public Hotel save(Hotel hotel, List<Long> amenityIds, String actor) {
+    public Hotel save(Hotel hotel, List<Long> amenityIds, Long brandId, String actor) {
         if (hotel.getId() == null) {
             hotel.setWorkflowStatus(WorkflowStatus.DRAFT);
         }
-        // Resolve amenities
         if (amenityIds != null && !amenityIds.isEmpty()) {
             hotel.setAmenities(new HashSet<>(amenityRepository.findAllById(amenityIds)));
         } else {
             hotel.setAmenities(new HashSet<>());
+        }
+        if (brandId != null) {
+            brandRepository.findById(brandId).ifPresent(hotel::setBrand);
+        } else {
+            hotel.setBrand(null);
         }
         boolean isNew = hotel.getId() == null;
         Hotel saved = hotelRepository.save(hotel);

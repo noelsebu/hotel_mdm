@@ -1,6 +1,8 @@
 package com.hotelmdm.web;
 
 import com.hotelmdm.audit.AuditService;
+import com.hotelmdm.domain.chain.service.HotelBrandService;
+import com.hotelmdm.domain.chain.service.HotelChainService;
 import com.hotelmdm.domain.guest.repository.GuestRepository;
 import com.hotelmdm.domain.property.repository.HotelRepository;
 import com.hotelmdm.domain.property.repository.RoomRepository;
@@ -26,6 +28,8 @@ public class DashboardController {
     private final WorkflowService workflowService;
     private final DataStewardTaskService taskService;
     private final AuditService auditService;
+    private final HotelChainService chainService;
+    private final HotelBrandService brandService;
 
     @GetMapping
     public String dashboard(Model model, Authentication auth) {
@@ -34,6 +38,8 @@ public class DashboardController {
         model.addAttribute("totalRooms", roomRepository.count());
         model.addAttribute("totalGuests", guestRepository.count());
         model.addAttribute("totalSuppliers", supplierRepository.count());
+        model.addAttribute("totalChains", chainService.count());
+        model.addAttribute("totalBrands", brandService.count());
 
         // Governance
         model.addAttribute("pendingApprovals", workflowService.countPending());

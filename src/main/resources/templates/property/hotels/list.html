@@ -28,7 +28,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Hotel</th>
-                            <th>Code</th>
+                            <th>Brand</th>
                             <th>Location</th>
                             <th>Stars</th>
                             <th>Rooms</th>
@@ -40,9 +40,17 @@
                         <tr th:each="hotel : ${hotels}">
                             <td>
                                 <div class="fw-semibold" th:text="${hotel.name}"></div>
-                                <div class="text-muted small" th:text="${hotel.email}"></div>
+                                <div class="text-muted small"><code th:text="${hotel.code}"></code></div>
                             </td>
-                            <td><code th:text="${hotel.code}"></code></td>
+                            <td>
+                                <span th:if="${hotel.brand != null}">
+                                    <span class="brand-dot me-1"
+                                          th:style="${hotel.brand.colorCode != null} ? 'background-color:' + ${hotel.brand.colorCode} + ';width:10px;height:10px;border-radius:50%;display:inline-block;' : ''"></span>
+                                    <a th:href="@{/brand/{id}(id=${hotel.brand.id})}"
+                                       th:text="${hotel.brand.name}" class="text-decoration-none small"></a>
+                                </span>
+                                <span th:unless="${hotel.brand != null}" class="text-muted small">—</span>
+                            </td>
                             <td th:text="${hotel.city + ', ' + hotel.country}"></td>
                             <td>
                                 <span th:each="i : ${#numbers.sequence(1, hotel.starRating)}" class="text-warning">&#9733;</span>

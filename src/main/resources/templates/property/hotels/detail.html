@@ -71,6 +71,24 @@
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
+                        <dt class="col-5">Brand</dt>
+                        <dd class="col-7">
+                            <span th:if="${hotel.brand != null}" class="d-flex align-items-center gap-2">
+                                <span class="brand-dot"
+                                      th:style="${hotel.brand.colorCode != null} ? 'background-color:' + ${hotel.brand.colorCode} + ';width:12px;height:12px;border-radius:50%;display:inline-block;' : ''"></span>
+                                <a th:href="@{/brand/{id}(id=${hotel.brand.id})}"
+                                   th:text="${hotel.brand.name}" class="fw-semibold text-decoration-none"></a>
+                                <span class="badge bg-secondary small" th:text="${hotel.brand.tier.label}"></span>
+                            </span>
+                            <span th:unless="${hotel.brand != null}" class="text-muted">—</span>
+                        </dd>
+                        <dt class="col-5">Chain</dt>
+                        <dd class="col-7">
+                            <a th:if="${hotel.brand != null}"
+                               th:href="@{/chain/{id}(id=${hotel.brand.chain.id})}"
+                               th:text="${hotel.brand.chain.name}" class="text-decoration-none"></a>
+                            <span th:unless="${hotel.brand != null}" class="text-muted">—</span>
+                        </dd>
                         <dt class="col-5">Address</dt>
                         <dd class="col-7" th:text="${hotel.address}"></dd>
                         <dt class="col-5">City</dt>

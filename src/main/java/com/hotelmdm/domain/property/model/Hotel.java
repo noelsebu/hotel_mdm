@@ -1,6 +1,7 @@
 package com.hotelmdm.domain.property.model;
 
 import com.hotelmdm.common.GovernedEntity;
+import com.hotelmdm.domain.chain.model.HotelBrand;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -54,6 +55,10 @@ public class Hotel extends GovernedEntity {
 
     @Column(length = 1000)
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private HotelBrand brand;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Room> rooms = new ArrayList<>();

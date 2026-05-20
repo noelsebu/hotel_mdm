@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main}">
+<head><title th:text="${brand.name}">Brand Detail</title></head>
+<body>
+<div layout:fragment="content">
+
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a th:href="@{/chain/{id}(id=${brand.chain.id})}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div class="brand-color-swatch rounded"
+                 th:style="${brand.colorCode != null} ? 'background-color:' + ${brand.colorCode} + ';width:48px;height:48px;flex-shrink:0;' : 'background-color:#6c757d;width:48px;height:48px;flex-shrink:0;'">
+            </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="mb-0" th:text="${brand.name}"></h2>
+                    <div th:insert="~{fragments/workflow-badge :: badge(${brand.workflowStatus})}"></div>
+                </div>
+                <small class="text-muted">
+                    <a th:href="@{/chain/{id}(id=${brand.chain.id})}" th:text="${brand.chain.name}" class="text-decoration-none"></a>
+                    &rsaquo; <code th:text="${brand.code}"></code>
+                    &middot; <span th:text="${brand.tier.label}"></span>
+                    &middot; <span th:text="${brand.segment.label}"></span>
+                </small>
+            </div>
+        </div>
+        <div class="d-flex gap-2" sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+            <a th:if="${brand.isEditable()}" th:href="@{/brand/{id}/edit(id=${brand.id})}"
+               class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            <form th:if="${brand.isDraft()}" th:action="@{/brand/{id}/submit(id=${brand.id})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn btn-warning btn-sm">
+                    <i class="bi bi-send me-1"></i>Submit for Approval
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Brand Info + Description -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-info-circle me-2"></i>Brand Information
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted small">Chain</dt>
+                        <dd class="col-7">
+                            <a th:href="@{/chain/{id}(id=${brand.chain.id})}" th:text="${brand.chain.name}"></a>
+                        </dd>
+                        <dt class="col-5 text-muted small">Tier</dt>
+                        <dd class="col-7"><span class="badge bg-secondary" th:text="${brand.tier.label}"></span></dd>
+                        <dt class="col-5 text-muted small">Segment</dt>
+                        <dd class="col-7 small" th:text="${brand.segment.label}"></dd>
+                        <dt class="col-5 text-muted small">Star Range</dt>
+                        <dd class="col-7">
+                            <span th:if="${brand.minStarRating != null}"
+                                  th:text="${brand.minStarRating} + ' – ' + ${brand.maxStarRating} + ' ★'"></span>
+                            <span th:unless="${brand.minStarRating != null}" class="text-muted">—</span>
+                        </dd>
+                        <dt class="col-5 text-muted small">Properties</dt>
+                        <dd class="col-7 fw-bold" th:text="${#lists.size(properties)}"></dd>
+                        <dt class="col-5 text-muted small">Standards</dt>
+                        <dd class="col-7 fw-bold">
+                            <span th:text="${mandatoryCount}"></span>
+                            <span class="text-muted small"> mandatory</span>
+                        </dd>
+                    </dl>
+                    <div th:if="${brand.description}" class="mt-3 pt-3 border-top text-muted small"
+                         th:text="${brand.description}"></div>
+                </div>
+            </div>
+
+            <!-- Add Brand Standard form -->
+            <div class="card border-0 shadow-sm" sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER','DATA_STEWARD')">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-plus-circle me-2"></i>Add Brand Standard
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/brand/{id}/standards(id=${brand.id})}" method="post"
+                          th:object="${newStandard}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm" th:field="*{title}"
+                                   placeholder="Standard title *" required/>
+                        </div>
+                        <div class="mb-2">
+                            <select class="form-select form-select-sm" th:field="*{category}" required>
+                                <option value="">— Category —</option>
+                                <option th:each="cat : ${standardCategories}"
+                                        th:value="${cat}" th:text="${cat.label}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <textarea class="form-control form-control-sm" th:field="*{description}"
+                                      rows="2" placeholder="Description (optional)"></textarea>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" th:field="*{mandatory}" id="mandatory"/>
+                            <label class="form-check-label small" for="mandatory">Mandatory standard</label>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
+                            <i class="bi bi-plus me-1"></i>Add Standard
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column: Properties + Standards -->
+        <div class="col-md-8">
+
+            <!-- Properties -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-building me-2"></i>Properties
+                    <span class="badge bg-primary ms-2" th:text="${#lists.size(properties)}"></span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(properties)}" class="text-center text-muted py-4">
+                        <i class="bi bi-building fs-3 d-block mb-2"></i>
+                        No properties assigned to this brand yet.
+                    </div>
+                    <div class="table-responsive" th:unless="${#lists.isEmpty(properties)}">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hotel</th>
+                                    <th>Location</th>
+                                    <th>Stars</th>
+                                    <th>Rooms</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="hotel : ${properties}">
+                                    <td>
+                                        <div class="fw-semibold" th:text="${hotel.name}"></div>
+                                        <div class="text-muted small"><code th:text="${hotel.code}"></code></div>
+                                    </td>
+                                    <td class="small" th:text="${hotel.city + ', ' + hotel.country}"></td>
+                                    <td>
+                                        <span th:each="i : ${#numbers.sequence(1, hotel.starRating)}" class="text-warning">&#9733;</span>
+                                    </td>
+                                    <td th:text="${hotel.totalRooms}"></td>
+                                    <td th:insert="~{fragments/workflow-badge :: badge(${hotel.workflowStatus})}"></td>
+                                    <td>
+                                        <a th:href="@{/property/hotels/{id}(id=${hotel.id})}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand Standards -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">
+                    <i class="bi bi-patch-check me-2"></i>Brand Standards
+                    <span class="badge bg-secondary ms-2" th:text="${#lists.size(standards)}"></span>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${#lists.isEmpty(standards)}" class="text-center text-muted py-4">
+                        <i class="bi bi-patch-check fs-3 d-block mb-2"></i>
+                        No standards defined yet.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(standards)}">
+                        <!-- Group by category -->
+                        <div th:each="cat : ${standardCategories}">
+                            <div th:with="catStandards=${standards.?[category == #vars.cat]}">
+                                <div th:if="${not #lists.isEmpty(catStandards)}"
+                                     class="px-3 py-2 bg-light border-bottom">
+                                    <small class="fw-semibold text-uppercase text-muted" th:text="${cat.label}"></small>
+                                </div>
+                                <div th:each="std : ${catStandards}" class="d-flex align-items-start p-3 border-bottom">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i th:class="${std.mandatory} ? 'bi bi-check-circle-fill text-success' : 'bi bi-circle text-muted'"></i>
+                                            <span class="fw-semibold small" th:text="${std.title}"></span>
+                                            <span th:if="${std.mandatory}" class="badge bg-danger small" style="font-size:10px;">MANDATORY</span>
+                                        </div>
+                                        <div th:if="${std.description}" class="text-muted small ms-4"
+                                             th:text="${std.description}"></div>
+                                    </div>
+                                    <form th:action="@{/brand/standards/{sid}/delete(sid=${std.id})}"
+                                          method="post" class="ms-2"
+                                          sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER','DATA_STEWARD')">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <input type="hidden" name="brandId" th:value="${brand.id}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Remove this standard?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit History -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-journal-text me-2"></i>Audit History
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(auditHistory)}" class="text-muted p-3 text-center small">No audit entries yet.</div>
+            <table class="table table-sm mb-0" th:unless="${#lists.isEmpty(auditHistory)}">
+                <tbody>
+                    <tr th:each="entry : ${auditHistory}">
+                        <td class="text-muted small ps-3" style="width:160px;"
+                            th:text="${#temporals.format(entry.performedAt, 'dd MMM yyyy HH:mm')}"></td>
+                        <td style="width:100px;">
+                            <span class="badge"
+                                  th:classappend="${entry.action == 'CREATE'} ? 'bg-success' : (${entry.action == 'DELETE'} ? 'bg-danger' : 'bg-secondary')"
+                                  th:text="${entry.action}"></span>
+                        </td>
+                        <td class="small fw-semibold" th:text="${entry.performedBy}"></td>
+                        <td class="small text-muted" th:text="${entry.details}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -47,6 +47,38 @@
         </div>
     </div>
 
+    <!-- Chain Hierarchy Card -->
+    <div class="card border-0 shadow-sm mb-4" style="border-left: 4px solid #c8102e !important;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-diagram-3 fs-3 text-danger"></i>
+                    <div>
+                        <div class="fw-bold fs-5">Strawberry Hotels — Brand Hierarchy</div>
+                        <div class="text-muted small">Nordic Choice Hotels, rebranded 2022 · HQ: Oslo, Norway</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-4 text-center">
+                    <div>
+                        <div class="fw-bold fs-4" th:text="${totalChains}">0</div>
+                        <div class="text-muted small">Chains</div>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-4" th:text="${totalBrands}">0</div>
+                        <div class="text-muted small">Brands</div>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-4" th:text="${totalHotels}">0</div>
+                        <div class="text-muted small">Properties</div>
+                    </div>
+                </div>
+                <a th:href="@{/chain}" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-diagram-3 me-1"></i>View Hierarchy
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Governance Status Row -->
     <div class="row g-3 mb-4">
         <div class="col-md-6">

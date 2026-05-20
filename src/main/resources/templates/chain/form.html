@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<head><title th:text="${pageTitle}">Chain Form</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex align-items-center mb-4">
+        <a th:href="@{/chain}" class="btn btn-sm btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <i class="bi bi-diagram-3 me-2 fs-4"></i>
+        <h2 class="mb-0" th:text="${pageTitle}">Chain Form</h2>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form th:action="${chain.id != null} ? @{/chain/{id}(id=${chain.id})} : @{/chain}"
+                  th:object="${chain}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Chain Name *</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"
+                               placeholder="e.g. Strawberry"/>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Chain Code *</label>
+                        <input type="text" class="form-control text-uppercase" th:field="*{code}"
+                               th:classappend="${#fields.hasErrors('code')} ? 'is-invalid'"
+                               placeholder="e.g. STR"/>
+                        <div class="invalid-feedback" th:errors="*{code}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Former Name</label>
+                        <input type="text" class="form-control" th:field="*{formerName}"
+                               placeholder="e.g. Nordic Choice Hotels"/>
+                        <div class="form-text">Previous name before rebranding (optional)</div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Founded Year</label>
+                        <input type="number" class="form-control" th:field="*{foundedYear}"
+                               min="1800" max="2099" placeholder="1996"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">CEO / Founder</label>
+                        <input type="text" class="form-control" th:field="*{ceoName}"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Headquarters City</label>
+                        <input type="text" class="form-control" th:field="*{headquarters}"
+                               placeholder="e.g. Oslo"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Country</label>
+                        <input type="text" class="form-control" th:field="*{country}"
+                               placeholder="e.g. Norway"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Website</label>
+                        <input type="text" class="form-control" th:field="*{website}"
+                               placeholder="e.g. www.strawberry.no"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control" th:field="*{description}" rows="3"
+                                  placeholder="Brief overview of the hotel chain..."></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>Save Chain
+                    </button>
+                    <a th:href="@{/chain}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

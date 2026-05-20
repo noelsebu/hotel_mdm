@@ -89,6 +89,19 @@
                         <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
                     </div>
 
+                    <!-- Brand Assignment -->
+                    <div class="col-md-6" th:if="${allBrands != null and not #lists.isEmpty(allBrands)}">
+                        <label class="form-label fw-semibold">Brand</label>
+                        <select class="form-select" name="brandId">
+                            <option value="">— No Brand (Unassigned) —</option>
+                            <option th:each="brand : ${allBrands}"
+                                    th:value="${brand.id}"
+                                    th:text="${brand.name + ' (' + brand.tier.label + ')' }"
+                                    th:selected="${selectedBrandId != null and selectedBrandId == brand.id}"></option>
+                        </select>
+                        <div class="form-text">Assign this property to a Strawberry brand</div>
+                    </div>
+
                     <!-- Amenities -->
                     <div class="col-12" th:if="${allAmenities != null and not #lists.isEmpty(allAmenities)}">
                         <label class="form-label fw-semibold">Amenities</label>

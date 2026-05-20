@@ -20,4 +20,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     @Query("SELECT h FROM Hotel h LEFT JOIN FETCH h.amenities WHERE h.id = :id")
     Optional<Hotel> findByIdWithAmenities(Long id);
+
+    List<Hotel> findByBrandIdOrderByNameAsc(Long brandId);
 }

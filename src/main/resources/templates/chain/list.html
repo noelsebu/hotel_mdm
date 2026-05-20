@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main}">
+<head><title>Hotel Chains</title></head>
+<body>
+<div layout:fragment="content">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-diagram-3 me-2 fs-4"></i>
+            <h2 class="mb-0">Hotel Chains &amp; Brands</h2>
+        </div>
+        <a th:href="@{/chain/new}" class="btn btn-primary"
+           sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+            <i class="bi bi-plus-lg me-1"></i>New Chain
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(chains)}" class="text-center text-muted py-5">
+        <i class="bi bi-diagram-3 fs-1 d-block mb-3"></i>
+        No hotel chains configured. <a th:href="@{/chain/new}" sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">Add the first one.</a>
+    </div>
+
+    <div th:each="chain : ${chains}" class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center gap-3">
+                <div>
+                    <h5 class="mb-0 fw-bold" th:text="${chain.name}"></h5>
+                    <small class="text-muted">
+                        <code th:text="${chain.code}"></code>
+                        <span th:if="${chain.formerName}" th:text="' · formerly ' + ${chain.formerName}" class="ms-1"></span>
+                        <span th:if="${chain.headquarters}" th:text="' · ' + ${chain.headquarters}" class="ms-1"></span>
+                    </small>
+                </div>
+                <div th:insert="~{fragments/workflow-badge :: badge(${chain.workflowStatus})}"></div>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/chain/{id}(id=${chain.id})}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-eye me-1"></i>View
+                </a>
+                <a th:href="@{/chain/{id}/edit(id=${chain.id})}" class="btn btn-sm btn-outline-primary"
+                   sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')"
+                   th:if="${chain.workflowStatus.name() == 'DRAFT' || chain.workflowStatus.name() == 'REJECTED'}">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a th:href="@{/brand/new(chainId=${chain.id})}" class="btn btn-sm btn-success"
+                   sec:authorize="hasAnyRole('ADMIN','DATA_MANAGER')">
+                    <i class="bi bi-plus-lg me-1"></i>Add Brand
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(chain.brands)}" class="text-muted p-4 text-center small">
+                No brands defined yet.
+            </div>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(chain.brands)}">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Brand</th>
+                            <th>Code</th>
+                            <th>Tier</th>
+                            <th>Segment</th>
+                            <th>Stars</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="brand : ${chain.brands}">
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span th:if="${brand.colorCode}" class="brand-dot"
+                                          th:style="'background-color:' + ${brand.colorCode} + ';width:12px;height:12px;border-radius:50%;display:inline-block;'"></span>
+                                    <span class="fw-semibold" th:text="${brand.name}"></span>
+                                </div>
+                            </td>
+                            <td><code th:text="${brand.code}"></code></td>
+                            <td><span class="badge bg-secondary" th:text="${brand.tier.label}"></span></td>
+                            <td class="text-muted small" th:text="${brand.segment.label}"></td>
+                            <td>
+                                <span th:if="${brand.minStarRating != null}"
+                                      th:text="${brand.minStarRating} + '–' + ${brand.maxStarRating} + ' ★'"></span>
+                            </td>
+                            <td th:insert="~{fragments/workflow-badge :: badge(${brand.workflowStatus})}"></td>
+                            <td class="text-end">
+                                <a th:href="@{/brand/{id}(id=${brand.id})}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
