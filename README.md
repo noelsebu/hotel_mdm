@@ -4,9 +4,11 @@ A Master Data Management (MDM) system for a hotel/hospitality group, built with 
 
 ## Overview
 
-HotelMDM centralises and governs master data across three core domains:
+HotelMDM centralises and governs master data across four core domains:
 
-- **Property** — hotels, rooms, and amenities
+- **Chain** — hotel chains with brand portfolios and organisational metadata
+- **Brand** — brand tiers, market segments, and brand standards per chain
+- **Property** — hotels (linked to chain/brand), rooms, and amenities
 - **Guest** — guest profiles, preferences, and loyalty tiers (Bronze → Platinum)
 - **Vendor** — suppliers, contracts, and contacts
 
@@ -15,6 +17,8 @@ HotelMDM centralises and governs master data across three core domains:
 | Feature | Description |
 |---|---|
 | Governance Workflow | Records move through DRAFT → PENDING_APPROVAL → APPROVED / REJECTED |
+| Chain & Brand Hierarchy | Hotels are linked to a parent chain and brand; brands carry tier (Luxury → Budget) and segment (Business, Leisure, etc.) |
+| Brand Standards | Configurable standards per brand (e.g. min/max star rating, service requirements) grouped by category |
 | Data Quality Rules | Configurable validation rules (regex, length, format, null checks) per entity |
 | Audit Trail | Every create / update / approve / reject action logged with user and timestamp |
 | Stewardship Tasks | Assignable tasks with priority and due dates for data stewards |
